@@ -8,10 +8,10 @@ The following steps should only need to be done once:
 
 Add the following to your `.bash_profile` script, or similar for your shell:
 
-```sh
+```powershell
 # If your ucsb email is user_1@ucsb.edu, then YOUR_ACCOUNT_NAME is user-1
 # Note: If you have an underscore in your account name, please replace with a hypen.
-export CS291_ACCOUNT=YOUR_ACCOUNT_NAME
+setx CS291_ACCOUNT YOUR_ACCOUNT_NAME
 ```
 
 ### Install `gcloud` tool
@@ -23,13 +23,13 @@ https://cloud.google.com/sdk/docs/#install_the_latest_cloud_tools_version_clouds
 
 Make sure you select your `@ucsb.edu` account when authenticating.
 
-```sh
+```powershell
 gcloud auth login
 ```
 
 ### Verify the above works
 
-```sh
+```powershell
 gcloud projects describe cs291-f19
 ```
 
@@ -50,7 +50,7 @@ projectNumber: '689092254566'
 
 Again, make sure you select your @ucsb.edu account when authenticating.
 
-```sh
+```powershell
 gcloud auth application-default login
 ```
 
@@ -60,7 +60,7 @@ Follow the instructions here: https://www.docker.com/products/docker-desktop
 
 ### Link Docker and Gcloud
 
-```sh
+```powershell
 gcloud auth configure-docker
 ```
 
@@ -71,22 +71,37 @@ application:
 
 ### Build Container
 
-```sh
-docker build -t us.gcr.io/cs291-f19/project2_${CS291_ACCOUNT} .
+```powershell
+docker build -t us.gcr.io/cs291-f19/project2_$Env:CS291_ACCOUNT .
 ```
 
 ### Run Locally
 
-```sh
+```powershell
 docker run -it --rm \
   -p 3000:3000 \
   -v ~/.config/gcloud/application_default_credentials.json:/root/.config/gcloud/application_default_credentials.json \
-  us.gcr.io/cs291-f19/project2_${CS291_ACCOUNT}
+  us.gcr.io/cs291-f19/project2_$Env:CS291_ACCOUNT
+```
+
+#### modified for Windows Edu
+
+See: [Windows 10: Docker for Windows: unable to share drive](https://github.com/docker/for-win/issues/690)
+
+See: [Can't share host drive (D) with Docker in Windows with a user with or without password](https://github.com/docker/for-win/issues/125)
+
+Copy `application_default_credentials.json` to project directory.
+
+```powershell
+docker run -it --rm `
+  -p 3000:3000 `
+  -v application_default_credentials.json:/root/.config/gcloud/application_default_credentials.json `
+  us.gcr.io/cs291-f19/project2_$Env:CS291_ACCOUNT
 ```
 
 ### Test Using CURL
 
-```sh
+```powershell
 curl -D- localhost:3000/
 ```
 
@@ -110,24 +125,24 @@ following two steps:
 
 ### Push Container to Google Container Registry
 
-```sh
-docker push us.gcr.io/cs291-f19/project2_${CS291_ACCOUNT}
+```powershell
+docker push us.gcr.io/cs291-f19/project2_$Env:CS291_ACCOUNT
 ```
 
 ### Deploy to Google Cloud Run
 
-```sh
+```powershell
 gcloud beta run deploy \
   --allow-unauthenticated \
   --concurrency 80 \
-  --image us.gcr.io/cs291-f19/project2_${CS291_ACCOUNT} \
+  --image us.gcr.io/cs291-f19/project2_$Env:CS291_ACCOUNT \
   --memory 128Mi \
   --platform managed \
   --project cs291-f19 \
   --region us-central1 \
   --service-account project2@cs291-f19.iam.gserviceaccount.com \
   --set-env-vars RACK_ENV=production \
-  ${CS291_ACCOUNT}
+  $Env:CS291_ACCOUNT
 ```
 
 The last line of output should look similar to the following:
