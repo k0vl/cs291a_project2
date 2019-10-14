@@ -190,3 +190,4 @@ Re-run the `export` command.
 
   At low concurrency (<64), Google Cloud Run is be faster, perhaps because it has a simpler architecture (no API gateway in between), or perhaps Google servers are just faster. At higher concurrency (>= 64), it might be hitting CPU limits at each of the containers. Each container is set to accept 80 connections, which is probably too much for one instance, and Google Cloud Run would not spawn new instances until that limit is reached. (I know memory is not the limiting factor, since the performance is the same when I doubled it.) 
   
+  The long start time after idle is probably due to container starting (and maybe even puma), which I know takes a few seconds on local machine.
