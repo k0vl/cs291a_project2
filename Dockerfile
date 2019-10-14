@@ -10,4 +10,8 @@ RUN gem install bundler && \
     bundle install
 
 COPY app.rb config.ru puma.rb ./
+
+COPY application_default_credentials.json /root/.config/gcloud/
+
+#CMD exec bash
 CMD exec bundle exec puma -C puma.rb
